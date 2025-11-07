@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pemesanan Buku</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <h2>Pemesanan Buku</h2>
+    <a href="dashboard.html" class="btn-secondary">⬅ Kembali</a>
+  </nav>
+
+  <main class="checkout-container">
+    <!-- FORM PEMESANAN -->
+    <section class="form-section">
+      <h3>Data Pemesan</h3>
+
+      <form id="formCheckout">
+        <label>Nama Pemesan</label>
+        <input id="namaPemesan" type="text" placeholder="Nama lengkap" required>
+
+        <label>Alamat</label>
+        <input id="alamatPemesan" type="text" placeholder="Alamat lengkap" required>
+
+        <label>Telepon</label>
+        <input id="teleponPemesan" type="text" placeholder="Nomor telepon" required>
+
+        <label>Email</label>
+        <input id="emailPemesan" type="email" placeholder="Email" required>
+
+        <label for="bukuSelect"><strong>Pilih Buku:</strong></label>
+        <select id="bukuSelect"></select>
+
+        <!-- Gambar buku -->
+        <div id="previewBuku" class="preview-container">
+          <img id="gambarBuku" src="" alt="Cover Buku" style="display:none;">
+        </div>
+
+        <input type="number" id="jumlah" placeholder="Jumlah" min="1" required>
+        <button type="button" id="tambahPesananBtn" class="btn-primary">Tambah ke Pesanan</button>
+      </form>
+    </section>
+
+    <!-- TABEL PESANAN -->
+    <section>
+      <h3>Daftar Pesanan</h3>
+      <table id="tabelPesanan">
+        <thead>
+          <tr>
+            <th>Nama Buku</th>
+            <th>Jumlah</th>
+            <th>Harga</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <p id="totalPembayaran" style="font-weight:bold; margin-top:10px;"></p>
+
+      <label>Metode Pembayaran</label>
+      <select id="metodePembayaran" required>
+        <option value="">Pilih Metode Pembayaran</option>
+        <option value="Transfer Bank">Transfer Bank</option>
+        <option value="E-Wallet">E-Wallet (Dana, OVO, GoPay)</option>
+        <option value="COD">Bayar di Tempat (COD)</option>
+        <option value="Kartu Kredit">Kartu Kredit / Debit</option>
+      </select>
+
+      <button class="btn-primary full" id="pesanSekarangBtn">Pesan Sekarang</button>
+    </section>
+
+    <!-- HASIL PESANAN -->
+    <section id="hasilPesanan" class="result" style="display:none; margin-top:30px;">
+      <h3>Hore, Pesanan Berhasil Dibuat!!</h3>
+      <div id="orderResult"></div>
+      <button id="lacakBtn" class="btn-primary" style="margin-top:10px;">Lacak Pesanan Anda Yuk!!</button>
+    </section>
+  </main>
+
+  <script src="js/data.js"></script>
+  <script>
+    // ===============================
+    // LOGIC UNTUK CHECKOUT PAGE
+    // ===============================
+    document.addEventListener("DOMContentLoaded", () => {
+      const bukuSelect = document.getElementById("bukuSelect");
+      const gambarBuku = document.getElementById("gambarBuku");
+      const tabelPesanan = document.querySelector("#tabelPesanan tbody");
+      const totalTag = document.getElementById("totalPembayaran");
+      const hasilPesanan = document.getElementById("hasilPesanan");
+      const orderResult = document.getElementById("orderResult");
+
+      let pesanan = [];
+
+      // Isi dropdown buku dari data.js
+      dataKatalogBuku.forEach(b => {
+        const opt = document.createElement("option");
+        opt.value = b.namaBarang;
+        opt.textContent = `${b.namaBarang} - ${b.harga}`;
+        bukuSelect.appendChild(opt);
+      });
+
+      // Preview gambar buku
+      bukuSelect.addEventListener("change", () => {
+        const bukuDipilih = dataKatalogBuku.find(b => b.namaBarang === bukuSelect.value);
+        if (bukuDipilih) {
+          gambarBuku.src = bukuDipilih.cover;
+          gambarBuku.style.display = "block";
+        }
+      });
+
+      // Tambah ke pesanan
+      document.getElementById("tambahPesananBtn").onclick = () => {
+        const buku = bukuSelect.value;
+        const jumlah = parseInt(document.getElementById("jumlah").value);
+
+        if (!buku || !jumlah) {
+          alert("Pilih buku dan isi jumlah!");
+          return;
+        }
+
+        const item = dataKatalogBuku.find(b => b.namaBarang === buku);
+        const harga = parseInt(item.harga.replace(/[^\d]/g, ""));
+        const total = harga * jumlah;
+
+        pesanan.push({ buku, jumlah, harga, total });
+
+        tabelPesanan.innerHTML = pesanan
+          .map(p => `
+            <tr>
+              <td>${p.buku}</td>
+              <td>${p.jumlah}</td>
+              <td>Rp ${p.harga.toLocaleString()}</td>
+              <td>Rp ${p.total.toLocaleString()}</td>
+            </tr>`)
+          .join("");
+
+        const totalSemua = pesanan.reduce((a, b) => a + b.total, 0);
+        totalTag.innerText = `Total Pembayaran: Rp ${totalSemua.toLocaleString()}`;
+      };
+
+      // Klik pesan sekarang
+      document.getElementById("pesanSekarangBtn").onclick = () => {
+        const nama = document.getElementById("namaPemesan").value;
+        const alamat = document.getElementById("alamatPemesan").value;
+        const telepon = document.getElementById("teleponPemesan").value;
+        const email = document.getElementById("emailPemesan").value;
+        const metode = document.getElementById("metodePembayaran").value;
+
+        if (!nama || !alamat || !telepon || !email || pesanan.length === 0 || !metode) {
+          alert("Lengkapi semua data terlebih dahulu!");
+          return;
+        }
+
+        const nomorDO = Math.floor(1000000 + Math.random() * 9000000);
+
+        // Simpan ke localStorage untuk tracking
+        const dataPesanan = {
+          nama,
+          alamat,
+          telepon,
+          email,
+          buku: pesanan[0].buku,
+          jumlah: pesanan[0].jumlah,
+          pembayaran: metode,
+          total: pesanan.reduce((a,b) => a+b.total, 0),
+          nomorDO
+        };
+
+        localStorage.setItem("dataTracking", JSON.stringify({
+          ...JSON.parse(localStorage.getItem("dataTracking") || "{}"),
+          [nomorDO]: dataPesanan
+        }));
+
+        localStorage.setItem("trackNow", nomorDO);
+
+        // Tampilkan hasil pesanan
+        hasilPesanan.style.display = "block";
+        orderResult.innerHTML = `
+          <p><b>Nama:</b> ${nama}</p>
+          <p><b>Alamat:</b> ${alamat}</p>
+          <p><b>Telepon:</b> ${telepon}</p>
+          <p><b>Email:</b> ${email}</p>
+          <p><b>Buku:</b> ${pesanan.map(p => p.buku).join(", ")}</p>
+          <p><b>Jumlah:</b> ${pesanan.reduce((a,b)=>a+b.jumlah,0)}</p>
+          <p><b>Metode Pembayaran:</b> ${metode}</p>
+          <p><b>Total:</b> Rp ${dataPesanan.total.toLocaleString()}</p>
+          <p><b>Nomor DO:</b> ${nomorDO}</p>
+          <p style="font-size:13px; color:#666;">Gunakan Nomor DO ini untuk melacak di halaman Tracking</p>
+        `;
+
+        document.querySelector(".form-section").style.display = "none";
+        document.querySelector("section:nth-of-type(2)").style.display = "none";
+      };
+
+      // Tombol lacak
+      document.getElementById("lacakBtn").onclick = () => {
+        window.location.href = "tracking.html";
+      };
+    });
+  </script>
+</body>
+</html>

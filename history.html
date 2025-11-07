@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>History Transaksi</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <h2>History Transaksi</h2>
+    <a href="dashboard.html" class="btn-secondary">⬅ Kembali</a>
+  </nav>
+
+  <main class="history-container">
+    <h3>Daftar Transaksi Anda</h3>
+    <table id="tabelHistory">
+      <thead>
+        <tr>
+           <th>No</th>
+          <th>Nama Pemesan</th>
+          <th>Judul Buku</th>
+          <th>Jumlah</th>
+          <th>Total</th>
+          <th>Tanggal</th>
+        </tr>
+      </thead>
+      <tbody id="historyTableBody"></tbody> 
+    </table>
+  </main>
+
+  <script src="js/data.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

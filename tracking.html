@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tracking Pengiriman</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body> 
+
+  <nav class="navbar">
+    <h2>Tracking Pengiriman</h2>
+    <a href="dashboard.html" class="btn-secondary">⬅ Kembali</a>
+  </nav>
+
+  <main class="tracking-container">
+    <section class="tracking-section">
+      <h3>Cek Status Pengiriman</h3>
+
+      <form id="trackingForm" class="tracking-input">
+        <input 
+          type="text" 
+          id="noDO" 
+          placeholder="Masukkan Nomor DO (contoh: 20xxxxxx)"
+          required
+        >
+        <button type="submit" class="btn-primary">Cari</button>
+      </form>
+
+      <div id="trackingResult" class="tracking-result">
+              </div>
+    </section>
+  </main>
+
+  <script src="js/data.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>
